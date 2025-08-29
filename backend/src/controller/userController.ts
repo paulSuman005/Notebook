@@ -6,6 +6,7 @@ import emailValidator from 'validator';
 import AppError from '../utils/errors/app.error';
 import User from '../model/userSchema';
 import { AuthRequest } from '../utils/interface/interface';
+import Note from '../model/noteSchema';
 
 const signup = async (req: Request, res: Response, next: NextFunction ) => {
     const { name, email, dateOfBirth } = req.body;
@@ -182,13 +183,13 @@ const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: true,
+            // secure: true,
             sameSite: "strict",
             maxAge: keepLoggedIn ? 7 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000,
         });
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
+            // secure: true,
             sameSite: "strict",
             maxAge: keepLoggedIn ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000,
         });
@@ -218,4 +219,90 @@ const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
 
 }
 
-export { signup , verifyOtp, resendOtp, verifyEmail, signin, getUser };
+const logout = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return next(new AppError('User not found', StatusCodes.NOT_FOUND));
+        }
+        user.refreshToken = undefined;
+        await user.save();
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            // secure: true,
+            sameSite: "strict",
+        });
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            // secure: true,
+            sameSite: "strict",
+        });
+        successResponse.message = 'User logged out successfully';
+        res.status(StatusCodes.OK).json(successResponse);
+    } catch (err: any) {
+        next(new AppError(err.message, StatusCodes.INTERNAL_SERVER_ERROR));
+    }
+}
+
+const createNote = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    const { title, content } = req.body;
+    try {
+        if (!title || !content) {
+            return next(new AppError('All fields are required!', StatusCodes.BAD_REQUEST));
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            return next(new AppError('User not found', StatusCodes.NOT_FOUND));
+        }
+        
+        const newNote = await Note.create({
+            userId: userId,
+            title,
+            content
+        });
+
+        successResponse.message = 'Note created successfully';
+        successResponse.data = newNote;
+        res.status(StatusCodes.OK).json(successResponse);
+    } catch (err: any) {
+        next(new AppError(err.message, StatusCodes.INTERNAL_SERVER_ERROR));
+    }
+}
+
+const deleteNote = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    const noteId = req.body.noteId;
+    try {
+        if (!noteId) {
+            return next(new AppError('Note ID is required!', StatusCodes.BAD_REQUEST));
+        }
+        const note = await Note.findOne({ _id: noteId, userId: userId });
+        if (!note) {
+            return next(new AppError('Note not found', StatusCodes.NOT_FOUND));
+        }
+        const deletedNote = await Note.findByIdAndDelete(noteId);
+
+        successResponse.message = 'Note deleted successfully';
+        successResponse.data = <Object>deletedNote;
+        res.status(StatusCodes.OK).json(successResponse);
+    }
+    catch (err: any) {
+        next(new AppError(err.message, StatusCodes.INTERNAL_SERVER_ERROR));
+    }
+}
+
+const getAllNotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    try {
+        const notes = await Note.find({ userId: userId }).sort({ createdAt: -1 }).lean();
+        successResponse.message = 'Notes fetched successfully';
+        successResponse.data = notes;
+        res.status(StatusCodes.OK).json(successResponse);
+    } catch (err: any) {
+        next(new AppError(err.message, StatusCodes.INTERNAL_SERVER_ERROR));
+    }
+}
+
+export { signup , verifyOtp, resendOtp, verifyEmail, signin, getUser, logout, deleteNote, createNote, getAllNotes };

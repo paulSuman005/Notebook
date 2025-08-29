@@ -1,13 +1,16 @@
 import express, {Request, Response} from 'express';
 import morgan from 'morgan';
-import userRouter from './router/userRouter';
 import errorMeddleware from './middleware/errorMiddleware';
+import userRouter from './router/userRouter';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 
 app.use(express.json());    // to parse the incoming request body as JSON
 app.use(express.urlencoded({ extended: true })); // to parse URL-encoded data
+
+app.use(cookieParser());
 
 app.use(morgan('dev'));  // to log the details of incoming requests
 
