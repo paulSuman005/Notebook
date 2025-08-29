@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# TypeScript compiled files
+dist/
+build/
+*.tsbuildinfo
+
+# VS Code settings
+.vscode/
+.history/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# npm package locks (optional, include if you don't want to track lock file)
+package-lock.json
+
+# Coverage reports (if using testing)
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+
+# Misc IDE files
+.idea/
+*.iml
+
+# React/Next.js build folders
+**/frontend/.next/
+**/frontend/build/
+**/frontend/.cache/
+
+# Nodemon
+**/backend/nodemon.json
+
