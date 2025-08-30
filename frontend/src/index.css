@@ -1,0 +1,6 @@
+:root {
+  --primary-color: #367AFF;   /* for button and hover */
+  --secondary-color: #FFFFFF; /* page color and text color of button */
+  --text-color: #232323;    /* main text color */
+  --light-text-color: #969696;/* secondary or light text color */
+}
