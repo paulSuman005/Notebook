@@ -30,7 +30,7 @@ const signup = async (req: Request, res: Response, next: NextFunction ) => {
         const otp = generateOTP();
         const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
-        const isExist = await User.findOne({ email });
+        const isExist = await User.findOne({ email }).maxTimeMS(15000);
         if(isExist && isExist.isEmailVerified) {
             return next(new AppError('Email already exists. Please login.', StatusCodes.BAD_REQUEST));
         }
