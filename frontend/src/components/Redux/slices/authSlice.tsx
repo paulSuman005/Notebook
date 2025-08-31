@@ -189,7 +189,10 @@ const authSlice = createSlice({
       })
       .addCase(createAccount.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("OTP sent successfully:", action.payload);
+        localStorage.setItem("data", JSON.stringify(action.payload?.data));
+        localStorage.setItem("isLoggedIn", "true");
+        state.user = action.payload.data;
+        state.isLoggedIn = true;
       })
       .addCase(createAccount.rejected, (state, action) => {
         state.loading = false;

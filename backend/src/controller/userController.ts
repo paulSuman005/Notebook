@@ -132,6 +132,9 @@ const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
 
         await user.save();
         //sending otp to user email
+        const message = generateOTPMessage(user.name, otp);
+    
+        await sendEmail({email, subject: message.subject, message: message.html});
 
         successResponse.message = 'OTP sent to email successfully';
         successResponse.data = { email };
