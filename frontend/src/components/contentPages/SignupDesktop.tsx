@@ -1,44 +1,72 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import React, { useState } from "react"
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import type { AppDispatch } from "../Redux/store";
+import { createAccount, verifyEmail } from "../Redux/slices/authSlice";
+import toast from "react-hot-toast";
 
 
 const SignupDestop: React.FC = function () {
 
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
     const [otpSent, setOtpSent] = useState(false);
+    const [showOtp, setShowOtp] = useState(false);
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState("");
-    const [showOtp, setShowOtp] = useState(false);
-    const [name, setName] = useState("");
+    const [userData, setUserData] = useState({
+        name: "",
+        email: "",
+        dateOfBirth: "",
+    });
 
 
     const handleGetOtp = async () => {
         setLoading(true);
-        try {
-            // simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            setOtpSent(true); // OTP sent successfully
-        } catch (error) {
-            console.error("Failed to send OTP:", error);
-            alert("Failed to send OTP. Try again.");
-        } finally {
+        const payload = {
+            ...userData,
+            dateOfBirth: new Date(userData.dateOfBirth)
+        };
+
+        const response = await dispatch(createAccount(payload));
+        if (response.payload.success === true) {
+            setOtpSent(true);
             setLoading(false);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setUserData({ ...userData, [name]: value });
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!userData.name || !userData.email || !userData.dateOfBirth) {
+            toast.error("every fields are required!");
+            return;
+        }
         if (!otpSent) {
             handleGetOtp();
+
         } else {
-            console.log("Submit form with OTP:", otp);
-            // submit form with OTP here
+            const payload = {
+                email: userData.email,
+                otp: otp
+            }
+            const res = await dispatch(verifyEmail(payload));
+            if (res.payload.success === true) {
+                navigate('/');
+            }
         }
     };
 
     return (
-        <Grid container sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", p:"0 64px"}}>
-            <Box sx={{ maxWidth: "550px",mb: 5, height: "auto", minHeight: "32px", gap: "10px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "start" }}>
+        <Grid container sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", p: "0 64px" }}>
+            <Box sx={{ maxWidth: "550px", mb: 5, height: "auto", minHeight: "32px", gap: "10px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "start" }}>
                 <Typography sx={{
                     fontWeight: 600,
                     fontSize: "32px",
@@ -75,8 +103,9 @@ const SignupDestop: React.FC = function () {
                 <TextField
                     label="Name"
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    name="name"
+                    value={userData.name}
+                    onChange={handleChange}
                     slotProps={{
                         input: { readOnly: otpSent }
                     }}
@@ -91,6 +120,9 @@ const SignupDestop: React.FC = function () {
 
                 <TextField
                     label="Date of Birth"
+                    name="dateOfBirth"
+                    value={userData.dateOfBirth}
+                    onChange={handleChange}
                     type="date"
                     slotProps={{
                         inputLabel: { shrink: true },
@@ -107,9 +139,11 @@ const SignupDestop: React.FC = function () {
 
                 <TextField
                     label="Email"
+                    name="email"
                     type="email"
+                    value={userData.email}
+                    onChange={handleChange}
                     slotProps={{
-                        inputLabel: { shrink: true },
                         input: { readOnly: otpSent }
                     }}
                     disabled={otpSent}
@@ -125,6 +159,7 @@ const SignupDestop: React.FC = function () {
                 {otpSent && (
                     <TextField
                         label="OTP"
+                        name="otp"
                         type={showOtp ? "text" : "password"}
                         value={otp}
                         onChange={(e) => {
@@ -162,6 +197,7 @@ const SignupDestop: React.FC = function () {
                 <Button
                     type="submit"
                     variant="contained"
+                    onSubmit={handleSubmit}
                     sx={{
                         color: "var(--secondary-color)",
                         backgroundColor: "var(--primary-color)",
@@ -187,7 +223,7 @@ const SignupDestop: React.FC = function () {
             </Box>
             <Typography sx={{ textAlign: "center", fontWeight: 400, fontSize: "14px", letterSpacing: "150%", height: "21px", color: "var(--light-text-color)", mt: 4 }}>
                 Already have an account??
-                <Typography component="span" sx={{ textAlign: "center", fontWeight: 600, fontSize: "14px", letterSpacing: "150%", height: "21px", color: "var(--primary-color)", textDecoration: "underline", textUnderlineOffset: "2px" }}>
+                <Typography component={Link} to={'/signin'} sx={{ textAlign: "center", fontWeight: 600, fontSize: "14px", letterSpacing: "150%", height: "21px", color: "var(--primary-color)", textDecoration: "underline", textUnderlineOffset: "2px" }}>
                     Sign in
                 </Typography>
             </Typography>

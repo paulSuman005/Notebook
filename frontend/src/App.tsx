@@ -1,18 +1,18 @@
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
+import SignupPage from './components/Pages/SignupPage'
+import SigninPage from './components/Pages/SigninPage'
 import DashboardPage from './components/Pages/DashboardPage'
-// import SigninContent from './components/contentPages/SigninContent'
-// import SigninPage from './components/Pages/SigninPage'
-// import SigninDestop from './components/contentPages/SigninDesktop'
-// import SignupDestop from './components/contentPages/SignupDesktop'
-// import SignupContent from './components/contentPages/SignupContent'
-// import AuthLayout from './components/Layout/AuthLayoutLargeScreen'
-// import SignupPage from './components/Pages/SignupPage'
 
 function App() {
 
   return (
     <>
-      <DashboardPage/>
+      <Routes>
+        <Route path='/' element={<DashboardPage/>}/>
+        <Route path='/signup' element={<SignupPage/>}/>
+        <Route path='/signin' element={<SigninPage/>}/>
+      </Routes>
     </>
   )
 }

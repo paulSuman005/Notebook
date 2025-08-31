@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -16,14 +16,29 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import Logo from "../../assets/logo";
 import CreateNote from "../contentPages/CreateNote";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteNote, getUser, getUserNotes } from "../Redux/slices/authSlice";
+import type { AppDispatch, RootState } from "../Redux/store";
 
 const DashboardPage: React.FC = () => {
-  const [notes, setNotes] = useState<string[]>(["Note 1", "Note 2", "Note 1", "Note 2", "Note 1", "Note 2", "Note 1", "Note 2", "Note 1", "Note 2"]);
-  const [isCreateNote, setIsCreateNote] = useState<boolean>(false);
 
-  const handleDelete = (index: number) => {
-    const updated = notes.filter((_, i) => i !== index);
-    setNotes(updated);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, notes } = useSelector((state: RootState) => state.auth);
+  console.log("user : ", user);
+  console.log("notes : ", notes);
+
+  const [isCreateNote, setIsCreateNote] = useState(false);
+
+  useEffect(() => {
+    const res = dispatch(getUser());
+    const resN = dispatch(getUserNotes());
+    console.log("user data : ", res);
+    console.log("user notes : ", resN);
+  }, [dispatch])
+
+  const handleDelete = (index: string) => {
+    const res = dispatch(deleteNote({noteId: index}));
+    console.log("delete succesfull", res);
   };
 
   return (
@@ -71,9 +86,9 @@ const DashboardPage: React.FC = () => {
           }}
           >
             <Typography fontWeight={700} sx={{ textAlign: "center", fontSize: "22px" }}>
-              Welcome, Jonas Kahnwald !
+              {user?.name}
             </Typography>
-            <Typography color="text.secondary" sx={{ textAlign: "center" }}>Email: xxxxx@xxxx.com</Typography>
+            <Typography color="text.secondary" sx={{ textAlign: "center" }}>{user?.email}</Typography>
           </CardContent>
         </Card>
 
@@ -92,24 +107,37 @@ const DashboardPage: React.FC = () => {
             Notes
           </Typography>
           <List>
-            {notes.map((note, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  border: "1px solid var(--note-border)",
-                  borderRadius: 2,
-                  mb: 2,
-                  boxShadow: "0px 2px 6px 0px #00000096",
-                }}
-                secondaryAction={
-                  <IconButton edge="end" onClick={() => handleDelete(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemText primary={note} />
-              </ListItem>
-            ))}
+            {notes.length > 0 &&
+              notes.map((note) => (
+                <ListItem
+                  key={note._id}
+                  sx={{
+                    border: "1px solid var(--note-border)",
+                    borderRadius: 2,
+                    mb: 2,
+                    boxShadow: "0px 2px 6px 0px #00000096",
+                  }}
+                  secondaryAction={
+                    <IconButton edge="end" onClick={() => handleDelete(note._id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={note.content}
+                    primaryTypographyProps={{
+                      sx: {
+                        fontFamily: "Inter",
+                        fontWeight: 400,
+                        fontStyle: "normal",
+                        fontSize: "16px",
+                        lineHeight: "250%",
+                        letterSpacing: "0%",
+                      },
+                    }}
+                  />
+                </ListItem>
+              ))}
           </List>
         </Box>
       </Container>

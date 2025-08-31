@@ -247,9 +247,9 @@ const logout = async (req: AuthRequest, res: Response, next: NextFunction) => {
 
 const createNote = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
-    const { title, content } = req.body;
+    const { content } = req.body;
     try {
-        if (!title || !content) {
+        if (!content) {
             return next(new AppError('All fields are required!', StatusCodes.BAD_REQUEST));
         }
         const user = await User.findById(userId);
@@ -259,7 +259,6 @@ const createNote = async (req: AuthRequest, res: Response, next: NextFunction) =
         
         const newNote = await Note.create({
             userId: userId,
-            title,
             content
         });
 

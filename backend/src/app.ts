@@ -1,11 +1,18 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 import errorMeddleware from './middleware/errorMiddleware';
 import userRouter from './router/userRouter';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 const app = express();
 
+
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+}));
 
 app.use(express.json());    // to parse the incoming request body as JSON
 app.use(express.urlencoded({ extended: true })); // to parse URL-encoded data
