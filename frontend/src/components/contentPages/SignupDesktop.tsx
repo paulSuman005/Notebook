@@ -153,7 +153,7 @@ const SignupDestop: React.FC = function () {
                                 ),
                             },
                             htmlInput: {
-                                inputMode: "numeric", // mobile numeric keyboard
+                                inputMode: "numeric",
                             },
                         }}
                     />
