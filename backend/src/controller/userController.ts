@@ -7,12 +7,20 @@ import AppError from '../utils/errors/app.error';
 import User from '../model/userSchema';
 import { AuthRequest } from '../utils/interface/interface';
 import Note from '../model/noteSchema';
+import { generateOTPMessage } from '../utils/helper/messageHelper';
+import sendEmail from '../utils/helper/sendEmail';
 
 const signup = async (req: Request, res: Response, next: NextFunction ) => {
     const { name, email, dateOfBirth } = req.body;
     try {
         if (!name || !email || !dateOfBirth) {
             return next(new AppError('All fields are required!', StatusCodes.BAD_REQUEST));
+        }
+
+        const dob = new Date(dateOfBirth);
+        const today = new Date();
+        if (dob > today) {
+            return next(new AppError('Date of birth cannot be in the future', StatusCodes.BAD_REQUEST));
         }
 
         const isValidEmail = emailValidator.isEmail(email);
@@ -27,6 +35,9 @@ const signup = async (req: Request, res: Response, next: NextFunction ) => {
             return next(new AppError('Email already exists. Please login.', StatusCodes.BAD_REQUEST));
         }
         //sending otp to user email
+        const message = generateOTPMessage(name, otp);
+    
+        await sendEmail({email, subject: message.subject, message: message.html});
 
         if (isExist) {
             isExist.name = name;
@@ -151,6 +162,9 @@ const signin = async (req: Request, res: Response, next: NextFunction) => {
 
         await user.save();
         //sending otp to user email
+        const message = generateOTPMessage(user.name, otp);
+    
+        await sendEmail({email, subject: message.subject, message: message.html});
 
         successResponse.message = 'OTP sent to email successfully';
         successResponse.data = { email };

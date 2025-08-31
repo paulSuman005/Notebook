@@ -10,11 +10,12 @@ userRouter.post('/verify-email', verifyEmail);
 userRouter.post('/resend-otp', resendOtp);
 userRouter.post('/verify-otp', verifyOtp);
 userRouter.post('/signin', signin);
-userRouter.post('/logout', isLoggedIn,  logout );
 userRouter.post('/create-note', isLoggedIn, createNote);
 
 userRouter.get('/getUser', isLoggedIn, getUser );
 userRouter.get('/getAllNotes', isLoggedIn, getAllNotes);
+userRouter.get('/logout', isLoggedIn,  logout );
+
 
 userRouter.delete('/delete-note', isLoggedIn, deleteNote);
 
