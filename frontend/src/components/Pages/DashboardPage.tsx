@@ -11,18 +11,26 @@ import {
   List,
   ListItem,
   ListItemText,
-  Container
+  Container,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Logo from "../../assets/logo";
 import CreateNote from "../contentPages/CreateNote";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteNote, getUser, getUserNotes } from "../Redux/slices/authSlice";
+import { deleteNote, getUser, getUserNotes, userlogout } from "../Redux/slices/authSlice";
 import type { AppDispatch, RootState } from "../Redux/store";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const DashboardPage: React.FC = () => {
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { user, notes } = useSelector((state: RootState) => state.auth);
   console.log("user : ", user);
   console.log("notes : ", notes);
@@ -30,16 +38,36 @@ const DashboardPage: React.FC = () => {
   const [isCreateNote, setIsCreateNote] = useState(false);
 
   useEffect(() => {
-    const res = dispatch(getUser());
-    const resN = dispatch(getUserNotes());
-    console.log("user data : ", res);
-    console.log("user notes : ", resN);
-  }, [dispatch])
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(getUser());
+        const resNote = await dispatch(getUserNotes());
+        if(res.payload === 'Unauthenticated, please login again' || resNote.payload === 'Unauthenticated, please login again'){
+          navigate("/signin");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [dispatch, navigate]);
+
 
   const handleDelete = (index: string) => {
-    const res = dispatch(deleteNote({noteId: index}));
+    const res = dispatch(deleteNote({ noteId: index }));
     console.log("delete succesfull", res);
   };
+
+  const handleSignout = async () => {
+    const res = await dispatch(userlogout());
+    if(res.payload.success){
+      toast.success('Logout successfully!');
+      navigate('/signin');
+    }else{
+      toast.error('Failed to logout!')
+    }
+  }
 
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "#fff" }}>
@@ -59,7 +87,7 @@ const DashboardPage: React.FC = () => {
               Dashboard
             </Typography>
           </Box>
-          <Button sx={{ textTransform: "none", fontSize: "16px", fontWeight: 400, textDecoration: "underline", textUnderlineOffset: "3px", color: "var(--primary-color)" }}>
+          <Button onClick={handleSignout} sx={{ textTransform: "none", fontSize: "16px", fontWeight: 400, textDecoration: "underline", textUnderlineOffset: "3px", color: "var(--primary-color)" }}>
             Sign Out
           </Button>
         </Toolbar>
@@ -85,10 +113,10 @@ const DashboardPage: React.FC = () => {
             justifyContent: "space-around"
           }}
           >
-            <Typography fontWeight={700} sx={{ textAlign: "center", fontSize: "22px" }}>
+            <Typography fontWeight={700} sx={{ textAlign: "center", fontSize: isMobile ? "22px" : "30px", }}>
               {user?.name}
             </Typography>
-            <Typography color="text.secondary" sx={{ textAlign: "center" }}>{user?.email}</Typography>
+            <Typography color="text.secondary" sx={{ textAlign: "center", fontSize: isMobile ? "14px" : "18px" }}>{user?.email}</Typography>
           </CardContent>
         </Card>
 

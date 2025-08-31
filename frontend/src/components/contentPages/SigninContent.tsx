@@ -63,7 +63,8 @@ const SigninContent: React.FC = function () {
                 keepLoggedIn
             }
             const res = await dispatch(verifyOTP(payload));
-            if (res.payload.success === true) {
+            console.log("login res : ", res);
+            if (res.meta.requestStatus === "fulfilled") {
                 navigate('/');
             }
         }
@@ -142,7 +143,7 @@ const SigninContent: React.FC = function () {
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton onClick={() => setShowOtp((prev) => !prev)} edge="end">
-                                        {showOtp ? <Visibility /> : <VisibilityOff />}
+                                        {showOtp ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             ),

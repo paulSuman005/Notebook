@@ -72,7 +72,7 @@ const SigninDestop: React.FC = function () {
                 keepLoggedIn
             }
             const res = await dispatch(verifyOTP(payload));
-            if (res.payload.success === true) {
+            if (res.payload.success) {
                 navigate('/');
             }
         }

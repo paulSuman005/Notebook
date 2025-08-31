@@ -34,8 +34,8 @@ const SignupDestop: React.FC = function () {
         const response = await dispatch(createAccount(payload));
         if (response.payload.success === true) {
             setOtpSent(true);
-            setLoading(false);
         }
+        setLoading(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,7 +182,7 @@ const SignupDestop: React.FC = function () {
                                             onClick={() => setShowOtp((prev) => !prev)}
                                             edge="end"
                                         >
-                                            {showOtp ? <VisibilityOff /> : <Visibility />}
+                                            {showOtp ? <Visibility /> : <VisibilityOff /> }
                                         </IconButton>
                                     </InputAdornment>
                                 ),
