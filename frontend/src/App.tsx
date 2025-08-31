@@ -1,6 +1,7 @@
 import './App.css'
+import DashboardPage from './components/Pages/DashboardPage'
 // import SigninContent from './components/contentPages/SigninContent'
-import SigninPage from './components/Pages/SigninPage'
+// import SigninPage from './components/Pages/SigninPage'
 // import SigninDestop from './components/contentPages/SigninDesktop'
 // import SignupDestop from './components/contentPages/SignupDesktop'
 // import SignupContent from './components/contentPages/SignupContent'
@@ -11,7 +12,7 @@ function App() {
 
   return (
     <>
-      <SigninPage/>
+      <DashboardPage/>
     </>
   )
 }

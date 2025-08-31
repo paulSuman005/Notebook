@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-const SigninDestop: React.FC = () => {
+const SigninDestop: React.FC = function ()  {
     const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState("");
